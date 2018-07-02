@@ -48,7 +48,13 @@ public class JdbcConnector {
       IMendixObject obj = objectInstantiator.instantiate(context, entityName);
       
       BiConsumer<String, Optional<Object>> setMemberValue = (name, value) -> {
-        PrimitiveType type = metaObject.getMetaPrimitive(name).getType();
+        IMetaPrimitive primitive = metaObject.getMetaPrimitive(name);
+        // skip attribute and log warning if it is not found.
+        if(primitive == null) {
+          logNode.warn("Attribute not found: " + name);
+          return;
+        }
+        PrimitiveType type = primitive.getType();
         // convert to suitable value (different for Binary type)
         Function<Object, Object> toSuitableValue = toSuitableValue(type);
         // for Boolean type, convert null to false
